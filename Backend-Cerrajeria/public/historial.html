@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Historial de Pedidos - Cerrajería ALBA</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Historial de Pedidos</h1>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="carrito.html">Carrito</a>
+      <a href="login.html">Mi cuenta</a>
+    </nav>
+  </header>
+
+  <main class="tienda-container">
+    <section id="contenedor-historial" class="productos-grid">
+      <!-- Pedidos cargados aquí -->
+    </section>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Cerrajería ALBA</p>
+  </footer>
+
+  <script>
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    if (!usuario || !usuario.id_usuario) {
+      alert('⚠️ No has iniciado sesión.');
+      window.location.href = 'login.html';
+    }
+
+    const id_usuario = usuario.id_usuario;
+    console.log('👤 Usuario cargado:', usuario);
+    console.log('🔍 Consultando historial de ID:', id_usuario);
+
+   fetch(`http://localhost:3000/api/historial`)
+      .then(res => res.json())
+      .then(data => {
+        const contenedor = document.getElementById('contenedor-historial');
+
+        if (data.length === 0) {
+          contenedor.innerHTML = '<p>No tienes pedidos registrados.</p>';
+          return;
+        }
+
+        data.forEach(pedido => {
+          const pedidoDiv = document.createElement('div');
+          pedidoDiv.classList.add('producto');
+
+          pedidoDiv.innerHTML = `
+            <h3>Pedido #${pedido.id_pedido}</h3>
+            <p><strong>Fecha:</strong> ${pedido.fecha_pedido}</p>
+            <p><strong>Estado del pedido:</strong> ${pedido.estado_pedido}</p>
+            <p><strong>Total:</strong> $${pedido.total}</p>
+            <p><strong>Dirección de envío:</strong> ${pedido.direccion_envio || 'No registrada'}</p>
+            <p><strong>Estado de envío:</strong> ${pedido.estado_envio || 'Pendiente'}</p>
+          `;
+
+          contenedor.appendChild(pedidoDiv);
+        });
+      })
+      .catch(error => {
+        console.error('❌ Error al consultar historial:', error);
+      });
+  </script>
+</body>
+</html>

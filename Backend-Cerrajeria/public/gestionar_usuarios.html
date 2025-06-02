@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestionar Usuarios - Cerrajería ALBA</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <h1>Gestión de Usuarios</h1>
+
+  <h2>Agregar nuevo usuario</h2>
+<form id="form-usuario">
+  <label>Nombre:</label>
+  <input type="text" name="nombre" required>
+
+  <label>Apellido:</label>
+  <input type="text" name="apellido" required>
+
+  <label>Correo:</label>
+  <input type="email" name="correo" required>
+
+  <label>Teléfono:</label>
+  <input type="text" name="telefono" required>
+
+  <label>Dirección:</label>
+  <input type="text" name="direccion" required>
+
+  <label>Tipo de usuario:</label>
+  <select name="tipo_usuario" required>
+    <option value="Administrador">Administrador</option>
+    <option value="Empleado">Empleado</option>
+    <option value="Área de ventas">Área de ventas</option>
+    <option value="Proveedor">Proveedor</option>
+    <option value="Cliente">Cliente</option>
+  </select>
+
+  <label>Contraseña:</label>
+  <input type="password" name="password" required>
+
+  <button type="submit">Registrar Usuario</button>
+</form>
+<p id="mensaje-usuario"></p>
+
+
+  <table border="1" id="tabla-usuarios">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Correo</th>
+        <th>Teléfono</th>
+        <th>Dirección</th>
+        <th>Tipo de usuario</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Usuarios cargados dinámicamente -->
+    </tbody>
+  </table>
+  <script>
+  // Cargar usuarios desde el backend
+  async function cargarUsuarios() {
+    const res = await fetch('http://localhost:3000/api/usuarios');
+    const usuarios = await res.json();
+    const tbody = document.querySelector('#tabla-usuarios tbody');
+    tbody.innerHTML = '';
+
+    usuarios.forEach(u => {
+      const fila = document.createElement('tr');
+      fila.innerHTML = `
+        <td>${u.id_usuario}</td>
+        <td contenteditable="true">${u.nombre}</td>
+        <td contenteditable="true">${u.apellido}</td>
+        <td contenteditable="true">${u.correo}</td>
+        <td contenteditable="true">${u.telefono}</td>
+        <td contenteditable="true">${u.direccion}</td>
+        <td contenteditable="true">${u.tipo_usuario}</td>
+        <td>
+          <button onclick="guardarUsuario(${u.id_usuario}, this)">💾</button>
+          <button onclick="eliminarUsuario(${u.id_usuario})">🗑️</button>
+        </td>
+      `;
+      tbody.appendChild(fila);
+    });
+  }
+
+  // Guardar usuario editado
+  async function guardarUsuario(id, btn) {
+    const fila = btn.closest('tr');
+    const celdas = fila.querySelectorAll('td');
+
+    const datos = {
+      nombre: celdas[1].textContent,
+      apellido: celdas[2].textContent,
+      correo: celdas[3].textContent,
+      telefono: celdas[4].textContent,
+      direccion: celdas[5].textContent,
+      tipo_usuario: celdas[6].textContent
+    };
+
+    const res = await fetch(`http://localhost:3000/api/usuarios/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    });
+
+    const data = await res.json();
+    alert(data.mensaje);
+    cargarUsuarios();
+  }
+
+  // Eliminar usuario
+  async function eliminarUsuario(id) {
+    if (!confirm('¿Deseas eliminar este usuario?')) return;
+
+    const res = await fetch(`http://localhost:3000/api/usuarios/${id}`, {
+      method: 'DELETE'
+    });
+
+    const data = await res.json();
+    alert(data.mensaje);
+    cargarUsuarios();
+  }
+
+  // Registrar nuevo usuario
+  document.getElementById('form-usuario').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const datos = Object.fromEntries(new FormData(e.target));
+
+    const res = await fetch('http://localhost:3000/api/usuarios', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datos)
+    });
+
+    const data = await res.json();
+    document.getElementById('mensaje-usuario').textContent = data.mensaje;
+
+    if (data.exito) {
+      e.target.reset();
+      cargarUsuarios(); // recargar tabla
+    }
+  });
+
+  // Ejecutar al cargar la página
+  document.addEventListener('DOMContentLoaded', cargarUsuarios);
+</script>
+
+  
+  
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pedido Confirmado - Cerrajería ALBA</title>
+  <link rel="stylesheet" href="/public/css/styles.css">
+</head>
+<body>
+  <div class="confirmacion-container">
+    <h1>¡Gracias por tu compra!</h1>
+    <p>Tu pedido ha sido confirmado con éxito.</p>
+    <div class="confirmacion-icono">✅</div>
+    <p><strong>Número de pedido:</strong> <span id="num-pedido">Cargando...</span></p>
+    <p>Recibirás un correo con los detalles y el seguimiento.</p>
+    
+    <div class="botones-confirmacion">
+      <a href="index.html" class="btn-volver">Seguir comprando</a>
+      <a href="historial.html" class="btn-ver-pedidos">Ver mis pedidos</a>
+    </div>
+  </div>
+
+  <script>
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+
+    if (!usuario) {
+      document.getElementById('num-pedido').textContent = 'No disponible';
+    } else {
+      fetch(`http://localhost:3000/api/ultimo-pedido/${usuario.id_usuario}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.id_pedido) {
+            document.getElementById('num-pedido').textContent = `#ALBA${data.id_pedido}`;
+          } else {
+            document.getElementById('num-pedido').textContent = 'No disponible';
+          }
+        })
+        .catch(err => {
+          console.error('Error al obtener pedido:', err);
+          document.getElementById('num-pedido').textContent = 'Error';
+        });
+    }
+  </script>
+</body>
+</html>

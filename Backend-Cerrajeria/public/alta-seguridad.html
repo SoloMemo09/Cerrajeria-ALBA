@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alta seguridad - Cerrajería ALBA</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header><h1>Categoría: Alta seguridad</h1>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a href="carrito.html">Carrito</a>
+      <a href="login.html">Mi cuenta</a>
+    </nav>
+  </header>
+  <main class="tienda-container">
+    <section id="productos" class="productos-grid">
+    </section>
+  </main>
+  <footer><p>&copy; 2025 Cerrajería ALBA</p></footer>
+  <script src="js/carrito.js"></script>
+
+   <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      fetch('http://localhost:3000/api/productos')
+        .then(res => res.json())
+        .then(productos => {
+          const contenedor = document.getElementById('productos');
+
+          const AltaSeguridad = productos.filter(p => p.categoria.toLowerCase() === 'alta seguridad');
+
+            AltaSeguridad.forEach(p => {
+            const tarjeta = document.createElement('div');
+            tarjeta.classList.add('producto-card');
+
+            const nombreImagen = encodeURIComponent(p.nombre); // Soporta espacios
+
+            tarjeta.innerHTML = `
+              <img src="img/${nombreImagen}.jpg" alt="${p.nombre}">
+              <h2>${p.nombre}</h2>
+              <p>${p.descripcion}</p>
+              <span class="precio">$${p.precio}</span>
+              <button onclick="agregarAlCarrito(${p.id_producto}, '${p.nombre}', ${p.precio})">Agregar al carrito</button>
+            `;
+
+            contenedor.appendChild(tarjeta);
+          });
+        })
+        .catch(err => console.error('Error al cargar productos:', err));
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Validación de Pago</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Validar Pago</h1>
+    <nav>
+      <a href="index.html">🏠 Tienda</a>
+      <a href="login.html">🔐 Cerrar sesión</a>
+    </nav>
+  </header>
+
+  <main>
+    <form id="form-pago">
+      <label>Nombre en la tarjeta:</label>
+      <input type="text" id="nombre" name="nombre" required>
+
+      <label>Número de tarjeta:</label>
+      <input type="text" id="tarjeta" name="tarjeta" maxlength="16" required>
+
+      <label>Fecha de vencimiento:</label>
+      <input type="month" id="fecha_vencimiento" name="fecha_vencimiento" required>
+
+      <label>CVV:</label>
+      <input type="text" id="cvv" name="cvv" maxlength="4" required>
+
+      <button type="submit">Pagar</button>
+    </form>
+
+    <p id="mensaje"></p>
+  </main>
+
+  <script>
+    document.getElementById('form-pago').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const usuario = JSON.parse(localStorage.getItem('usuario'));
+      if (!usuario) {
+        alert("Debes iniciar sesión.");
+        return;
+      }
+
+      // 🔍 Obtener el último ID de pedido desde localStorage
+      const id_pedido = localStorage.getItem('ultimoPedido');
+      if (!id_pedido) {
+        alert("No se encontró ningún pedido para asociar el pago.");
+        return;
+      }
+
+      const pago = {
+        nombre: document.getElementById('nombre').value,
+        tarjeta: document.getElementById('tarjeta').value,
+        fecha_vencimiento: document.getElementById('fecha_vencimiento').value,
+        cvv: document.getElementById('cvv').value,
+        fecha: new Date().toISOString().slice(0, 10),
+        id_usuario: usuario.id_usuario,
+        id_pedido: id_pedido  // ✅ Asocia el pago al pedido más reciente
+      };
+
+      const res = await fetch('http://localhost:3000/api/pagos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(pago)
+      });
+
+      const data = await res.json();
+      document.getElementById('mensaje').textContent = data.mensaje;
+
+      if (data.exito) {
+        document.getElementById('form-pago').reset();
+        
+        // 🧹 Limpiar localStorage
+        localStorage.removeItem('ultimoPedido');
+
+        // Redirigir a confirmación
+        setTimeout(() => {
+          window.location.href = 'confirmacion.html';
+        }, 1000);
+      }
+    });
+  </script>
+</body>
+</html>

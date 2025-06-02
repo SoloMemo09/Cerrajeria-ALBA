@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión de Pedidos - Cerrajería ALBA</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <header>
+    <h1>Gestión de Pedidos</h1>
+    <nav>
+      <a href="index.html">Tienda</a>
+      <a href="login.html">Cerrar sesión</a>
+    </nav>
+  </header>
+
+  <main class="tienda-container">
+    <table border="1" style="width: 100%; text-align: left;">
+      <thead>
+        <tr>
+          <th>ID Pedido</th>
+          <th>Fecha</th>
+          <th>Estado Pedido</th>
+          <th>Total</th>
+          <th>Dirección de Envío</th>
+          <th>Estado de Envío</th>
+          <th>Acción</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-historial"></tbody>
+    </table>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Cerrajería ALBA</p>
+  </footer>
+
+  <script>
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const id_usuario = usuario.id_usuario;
+
+    fetch(`http://localhost:3000/api/historial`)
+      .then(res => res.json())
+      .then(data => {
+        const tbody = document.getElementById('tabla-historial');
+
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="7">No hay pedidos registrados.</td></tr>';
+          return;
+        }
+
+        data.forEach(pedido => {
+          const fila = document.createElement('tr');
+
+          fila.innerHTML = `
+            <td>${pedido.id_pedido}</td>
+            <td>${pedido.fecha_pedido}</td>
+            <td>${pedido.estado_pedido}</td>
+            <td>$${pedido.total}</td>
+            <td>${pedido.direccion_envio || 'No registrada'}</td>
+            <td>
+              <select data-id="${pedido.id_envio}">
+                <option value="Pendiente" ${pedido.estado_envio === 'Pendiente' ? 'selected' : ''}>Pendiente</option>
+                <option value="Enviado" ${pedido.estado_envio === 'Enviado' ? 'selected' : ''}>Enviado</option>
+                <option value="Entregado" ${pedido.estado_envio === 'Entregado' ? 'selected' : ''}>Entregado</option>
+              </select>
+            </td>
+            <td>
+              <button onclick="actualizarEstado(${pedido.id_envio})">Actualizar</button>
+            </td>
+          `;
+
+          tbody.appendChild(fila);
+        });
+      });
+
+    function actualizarEstado(id_envio) {
+      const select = document.querySelector(`select[data-id='${id_envio}']`);
+      const estado_envio = select.value;
+
+      fetch(`http://localhost:3000/api/envios/${id_envio}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estado_envio })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.mensaje);
+      });
+    }
+  </script>
+</body>
+</html>

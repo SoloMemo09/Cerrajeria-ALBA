@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Cerrajería ALBA</title>
+  <link rel="stylesheet" href="/public/css/styles.css">
+</head>
+<body>
+  <div class="login-container">
+    <h1>Iniciar Sesión</h1>
+    <form id="login-form">
+      <label for="email">Correo electrónico</label>
+      <input type="email" id="email" name="correo" placeholder="ejemplo@correo.com" required>
+
+      <label for="password">Contraseña</label>
+      <input type="password" id="password" name="contrasena" placeholder="********" required>
+
+      <button type="submit">Ingresar</button>
+    </form>
+
+    <p class="register-link">
+      ¿No tienes una cuenta?
+      <a href="registro.html">Regístrate aquí</a>
+    </p>
+  </div>
+
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const correo = e.target.correo.value;
+      const contrasena = e.target.contrasena.value;
+
+      const res = await fetch('http://localhost:3000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ correo, contrasena })
+      });
+
+      const data = await res.json();
+
+      if (data.exito) {
+        localStorage.setItem('usuario', JSON.stringify(data.usuario));
+
+        if (data.usuario.tipo_usuario === 'Administrador') {
+          window.location.href = 'admin.html';
+      } else if (data.usuario.tipo_usuario === 'Empleado') {
+        window.location.href = 'InterfazEmp.html';
+      } else if (data.usuario.tipo_usuario === 'Ventas') {
+        window.location.href = 'InterfazVent.html';
+      } else if (data.usuario.tipo_usuario === 'Proveedor') {
+        window.location.href = 'InterfazProv.html';
+      } else {
+        window.location.href = 'index.html'; // Cliente u otro
+      }
+      } else {
+        alert('Correo o contraseña incorrectos');
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestionar Categorías - Cerrajería ALBA</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <h1>Gestión de Categorías</h1>
+
+  <h2>Agregar nueva categoría</h2>
+  <form id="form-categoria">
+    <label>Nombre de categoría:</label>
+    <input type="text" name="nombre" required>
+    <button type="submit">Agregar</button>
+  </form>
+  <p id="mensaje-categoria"></p>
+
+  <table border="1" id="tabla-categorias">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Categorías cargadas dinámicamente -->
+    </tbody>
+  </table>
+
+  <script>
+    async function cargarCategorias() {
+      const res = await fetch('http://localhost:3000/api/categorias');
+      const categorias = await res.json();
+      const tbody = document.querySelector('#tabla-categorias tbody');
+      tbody.innerHTML = '';
+
+      categorias.forEach(c => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+          <td>${c.id_categoria}</td>
+          <td contenteditable="true">${c.nombre}</td>
+          <td>
+            <button onclick="guardarCategoria(${c.id_categoria}, this)">💾</button>
+            <button onclick="eliminarCategoria(${c.id_categoria})">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(fila);
+      });
+    }
+
+    async function guardarCategoria(id, btn) {
+      const fila = btn.closest('tr');
+      const nuevoNombre = fila.children[1].textContent.trim();
+
+      const res = await fetch(`http://localhost:3000/api/categorias/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre: nuevoNombre })
+      });
+
+      const data = await res.json();
+      alert(data.mensaje);
+      cargarCategorias();
+    }
+
+    async function eliminarCategoria(id) {
+      if (!confirm('¿Deseas eliminar esta categoría?')) return;
+
+      const res = await fetch(`http://localhost:3000/api/categorias/${id}`, {
+        method: 'DELETE'
+      });
+
+      const data = await res.json();
+      alert(data.mensaje);
+      cargarCategorias();
+    }
+
+    document.getElementById('form-categoria').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const datos = Object.fromEntries(new FormData(e.target));
+
+      const res = await fetch('http://localhost:3000/api/categorias', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+      });
+
+      const data = await res.json();
+      document.getElementById('mensaje-categoria').textContent = data.mensaje;
+
+      if (data.exito) {
+        e.target.reset();
+        cargarCategorias();
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', cargarCategorias);
+  </script>
+</body>
+</html>

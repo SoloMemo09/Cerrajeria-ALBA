@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carrito - Cerrajería ALBA</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <div class="logo">🔒 Cerrajería <strong>ALBA</strong></div>
+    <nav class="menu">
+      <a href="index.html">Inicio</a>
+      <a href="index.html">Catálogo</a>
+    </nav>
+  </header>
+
+  <main class="carrito">
+    <h1>Tu Carrito</h1>
+
+    <div id="contenedor-carrito">
+      <!-- Aquí se cargan los productos con JS -->
+    </div>
+
+    <div class="total">
+      <span>Total: <strong id="total">$0.00</strong></span>
+      <button class="pagar" onclick="confirmarCompra()">Pagar</button>
+      <button class="vaciar" onclick="vaciarCarrito()">Vaciar carrito</button>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <nav>
+      <a href="#">Inicio</a>
+      <a href="index.html">Catálogo</a>
+    </nav>
+  </footer>
+
+  <script src="js/carrito.js"></script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cerrajería ALBA</title>
+  <link rel="stylesheet" href="/public/css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="header">
+    <div class="promo">Usa el código TECVI para 10% de descuento</div>
+    <nav class="navbar">
+      <div class="logo">Cerrajería <strong>ALBA</strong></div>
+      <ul class="nav-links">
+        <a href="carrito.html">Carrito</a>
+        <a href="historial.html" class="btn-ver-pedidos">Ver mis pedidos</a>
+        <li><a href="#">Tienda</a></li>
+        <li>
+          <div class="search">
+            <input type="text" id="buscar-input" placeholder="Buscar producto">
+            <button onclick="buscarProductos()">🔍</button>
+          </div>
+        </li>
+        <li><a href="/public/acerca.html">Acerca de</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <div class="hero-text">Pagina Principal</div>
+      <img src="img/llaves.jpg" alt="Llaves" class="hero-img">
+    </section>
+
+    <section class="productos">
+      <a href="carcasas.html" class="producto">
+        <img src="img/carcasa.jpg" alt="Carcasas">
+        <p>Carcasas </p>
+      </a>
+      <a href="forjas.html" class="producto">
+        <img src="img/forja.jpg" alt="Forjas">
+        <p>Forjas </p>
+      </a>
+      <a href="jma.html" class="producto">
+        <img src="img/jma.jpg" alt="JMA">
+        <p>JMA </p>
+      </a>
+      <a href="alba.html" class="producto">
+        <img src="img/alba.jpg" alt="ALBA">
+        <p>ALBA </p>
+      </a>
+      <a href="automotriz.html" class="producto">
+        <img src="img/automotriz.jpg" alt="Automotriz">
+        <p>Automotriz </p>
+      </a>
+      <a href="alta-seguridad.html" class="producto">
+        <img src="img/altaseguridad.jpg" alt="Alta seguridad">
+        <p>Alta seguridad </p>
+      </a>
+      <a href="identificadores.html" class="producto">
+        <img src="img/identificadores.jpg" alt="Identificadores">
+        <p>Identificadores </p>
+      </a>
+      <a href="chips.html" class="producto">
+        <img src="img/chips.jpg" alt="Chips">
+        <p>Chips </p>
+      </a>
+      <a href="controles.html" class="producto">
+        <img src="img/controles.jpg" alt="Controles">
+        <p>Controles </p>
+      </a>
+    </section>
+
+  
+    <section id="productos" class="productos-grid" style="display: none;"></section>
+
+    <section class="marcas">
+      <h2>Nuestros principales proovedores</h2>
+      <div class="marca-slider">
+        <div class="marca">
+          <img src="img/alba-slider.jpg">
+          <p>ALBA<br><small>Seguridad y acceso manual</small></p>
+        </div>
+        <div class="marca">
+          <img src="img/jma-slider.jpg">
+          <p>JMA<br><small>Chips eficientes</small></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-column">
+      <h4>Tienda de seguridad</h4>
+    </div>
+    <div class="footer-column">
+      <ul>
+        <li>Security</li>
+        <li>Keys</li>
+        <li>Instagram</li>
+        <li>LinkedIn</li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <ul>
+        <li>Support</li>
+        <li>Partner with us</li>
+        <li>List your products</li>
+        <li>Join our team</li>
+      </ul>
+    </div>
+    <div class="footer-column">
+      <ul>
+        <li>Read our tips</li>
+        <li>Buy tools</li>
+        <li>Products available</li>
+        <li>Save on first purchase</li>
+      </ul>
+    </div>
+  </footer>
+
+  <script>
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    if (!usuario) window.location.href = 'login.html';
+    console.log('Bienvenido:', usuario.nombre);
+  </script>
+
+  <script>
+  let todosLosProductos = [];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    fetch('http://localhost:3000/api/productos')
+      .then(res => res.json())
+      .then(productos => {
+        todosLosProductos = productos;
+        // No mostrar productos hasta buscar
+      });
+  });
+
+  function mostrarProductos(productos) {
+    const contenedor = document.getElementById('productos');
+    contenedor.style.display = 'grid';
+    contenedor.innerHTML = '';
+
+    if (productos.length === 0) {
+      contenedor.innerHTML = '<p>No se encontraron productos.</p>';
+      return;
+    }
+
+    productos.forEach(p => {
+      const tarjeta = document.createElement('div');
+      tarjeta.classList.add('producto-card');
+
+      const nombreImagen = encodeURIComponent(p.nombre);
+
+      tarjeta.innerHTML = `
+        <img src="img/${nombreImagen}.jpg" alt="${p.nombre}">
+        <h2>${p.nombre}</h2>
+        <p>${p.descripcion}</p>
+        <span class="precio">$${p.precio}</span>
+        <button onclick="agregarAlCarrito(${p.id_producto}, '${p.nombre}', ${p.precio})">Agregar al carrito</button>
+      `;
+
+      contenedor.appendChild(tarjeta);
+    });
+  }
+
+  function buscarProductos() {
+    const texto = document.getElementById('buscar-input').value.toLowerCase().trim();
+    const resultado = todosLosProductos.filter(p =>
+      p.nombre.toLowerCase().includes(texto) ||
+      p.descripcion.toLowerCase().includes(texto)
+    );
+    mostrarProductos(resultado);
+  }
+
+  function agregarAlCarrito(id_producto, nombre, precio) {
+    const carrito = JSON.parse(localStorage.getItem("carrito")) || [];
+    const index = carrito.findIndex(item => item.id_producto === id_producto);
+
+    if (index !== -1) {
+      carrito[index].cantidad += 1;
+    } else {
+      carrito.push({ id_producto, nombre, precio, cantidad: 1 });
+    }
+
+    localStorage.setItem("carrito", JSON.stringify(carrito));
+    alert(`${nombre} agregado al carrito`);
+  }
+</script>
+</body>
+</html>

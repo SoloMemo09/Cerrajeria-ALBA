@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Administración - Cerrajería ALBA</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .admin-panel {
+      max-width: 900px;
+      margin: 50px auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .admin-btn {
+      padding: 30px;
+      background-color: #1e88e5;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-align: center;
+    }
+
+    .admin-btn:hover {
+      background-color: #1565c0;
+    }
+
+    header {
+      text-align: center;
+      padding: 20px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Panel del Administrador</h1>
+    <p>Selecciona una acción para administrar el sistema</p>
+  </header>
+
+  <main class="admin-panel">
+    <button class="admin-btn" onclick="location.href='alta-productos.html'">🛒 Alta de Productos</button>
+    <button class="admin-btn" onclick="location.href='gestionar_usuarios.html'">👥 Gestionar Usuarios</button>
+    <button class="admin-btn" onclick="location.href='proveedores.html'">📦 Gestionar Proveedores</button>
+    <button class="admin-btn" onclick="location.href='historial_admin.html'">📜 Historial de pedidos</button>
+    <button class="admin-btn" onclick="location.href='categorias.html'">📁 Categorías</button>
+    <button class="admin-btn" onclick="location.href='index.html'">🏠 Ir a la tienda</button>
+  </main>
+</body>
+</html>
