@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const app = express();
 
-// ✅ Importa rutas
+// ✅ Importa rutas Soy memo
 const rutas = require('./routes/index');
 
 app.use(cors());
