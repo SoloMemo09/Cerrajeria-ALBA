@@ -1,0 +1,21 @@
+# Node modules
+node_modules/
+
+# Configuración sensible
+.env
+
+# Archivos de base de datos
+*.sql
+*.sql.gz
+
+# Archivos temporales
+*.log
+.DS_Store
+Thumbs.db
+
+# Configuración de editores
+.vscode/
+.idea/
+
+# Otros
+npm-debug.log
