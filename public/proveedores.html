@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gestionar Proveedores</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <h1>Gestionar Proveedores</h1>
+
+  <form id="form-proveedor">
+    <label>Nombre:</label>
+    <input type="text" name="nombre" required>
+
+    <label>Correo:</label>
+    <input type="email" name="correo" required>
+
+    <label>Teléfono:</label>
+    <input type="text" name="telefono" required>
+
+    <button type="submit">Agregar proveedor</button>
+  </form>
+
+  <p id="mensaje"></p>
+
+  <h2>Lista de proveedores</h2>
+  <table border="1" id="tabla-proveedores">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Teléfono</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      cargarProveedores();
+
+      document.getElementById('form-proveedor').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const datos = Object.fromEntries(new FormData(e.target));
+
+        const res = await fetch('http://localhost:3000/api/proveedores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(datos)
+        });
+
+        const data = await res.json();
+        document.getElementById('mensaje').textContent = data.mensaje;
+        if (data.exito) {
+          e.target.reset();
+          cargarProveedores();
+        }
+      });
+    });
+
+    async function cargarProveedores() {
+      const res = await fetch('http://localhost:3000/api/proveedores');
+      const proveedores = await res.json();
+      const tbody = document.querySelector('#tabla-proveedores tbody');
+      tbody.innerHTML = '';
+
+      proveedores.forEach(p => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+          <td>${p.id_proveedor}</td>
+          <td contenteditable="true">${p.nombre}</td>
+          <td contenteditable="true">${p.correo}</td>
+          <td contenteditable="true">${p.telefono}</td>
+          <td>
+            <button onclick="guardarProveedor(${p.id_proveedor}, this)">💾</button>
+            <button onclick="eliminarProveedor(${p.id_proveedor})">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(fila);
+      });
+    }
+
+    function guardarProveedor(id, btn) {
+      const fila = btn.closest('tr');
+      const celdas = fila.querySelectorAll('td');
+      const datos = {
+        nombre: celdas[1].textContent,
+        correo: celdas[2].textContent,
+        telefono: celdas[3].textContent
+      };
+
+      fetch(`http://localhost:3000/api/proveedores/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.mensaje);
+        cargarProveedores();
+      });
+    }
+
+    function eliminarProveedor(id) {
+      if (!confirm('¿Eliminar este proveedor?')) return;
+      fetch(`http://localhost:3000/api/proveedores/${id}`, {
+        method: 'DELETE'
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.mensaje);
+        cargarProveedores();
+      });
+    }
+  </script>
+</body>
+</html>

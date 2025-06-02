@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel Admin - Alta de Productos</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <h2>Productos registrados</h2>
+  <table border="1" id="tabla-productos">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Precio</th>
+        <th>Stock</th>
+        <th>Categoría</th>
+        <th>Proveedor</th>
+        <th>Acciones</th> <!-- ✅ columna añadida -->
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Productos cargados dinámicamente -->
+    </tbody>
+  </table>
+
+   <script>
+    // ✅ Cargar productos en la tabla
+    async function cargarProductos() {
+      const res = await fetch('http://localhost:3000/api/productos');
+      const productos = await res.json();
+      const tbody = document.querySelector('#tabla-productos tbody');
+      tbody.innerHTML = '';
+
+      productos.forEach(p => {
+        const fila = document.createElement('tr');
+        fila.innerHTML = `
+          <td>${p.id_producto}</td>
+          <td contenteditable="true">${p.nombre}</td>
+          <td contenteditable="true">${p.descripcion}</td>
+          <td contenteditable="true">${p.precio}</td>
+          <td contenteditable="true">${p.cantidad_stock}</td>
+          <td contenteditable="true">${p.id_categoria || ''}</td>
+          <td contenteditable="true">${p.id_proveedor || ''}</td>
+          <td>
+            <button onclick="guardarEdicion(${p.id_producto}, this)">💾</button>
+            <button onclick="eliminarProducto(${p.id_producto})">🗑️</button>
+          </td>
+        `;
+        tbody.appendChild(fila);
+      });
+    }
+
+    // ✅ Guardar edición de producto
+    function guardarEdicion(id, btn) {
+      const fila = btn.closest('tr');
+      const celdas = fila.querySelectorAll('td');
+
+      const datos = {
+        nombre: celdas[1].textContent,
+        descripcion: celdas[2].textContent,
+        precio: parseFloat(celdas[3].textContent),
+        cantidad_stock: parseInt(celdas[4].textContent),
+        id_categoria: parseInt(celdas[5].textContent),
+        id_proveedor: parseInt(celdas[6].textContent)
+      };
+
+      fetch(`http://localhost:3000/api/productos/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datos)
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.mensaje);
+        cargarProductos();
+      });
+    }
+
+    // ✅ Eliminar producto
+    function eliminarProducto(id) {
+      if (!confirm('¿Eliminar este producto?')) return;
+
+      fetch(`http://localhost:3000/api/productos/${id}`, {
+        method: 'DELETE'
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.mensaje);
+        cargarProductos();
+      });
+    }
+
+    // ✅ Ejecutar al cargar la página
+    document.addEventListener('DOMContentLoaded', cargarProductos);
+   </script>
